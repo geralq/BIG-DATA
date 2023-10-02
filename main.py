@@ -1,47 +1,53 @@
+import ssl
 from collections import defaultdict
 
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import sent_tokenize
 
-def inverted_index_of(document_list):
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+nltk.download('stopwords')
+nltk.download('punkt')
+
+stop_words = set(stopwords.words('english'))
+
+prepositions = ["about", "above", "across", "after", "against", "along", "amid", "among", "around", "as", "at",
+                "before", "behind", "below", "beneath", "beside", "between", "beyond", "but", "by", "concerning",
+                "considering", "despite", "down", "during", "except", "for", "from", "in", "inside", "into", "like",
+                "near", "of", "off", "on", "onto", "out", "outside", "over", "past", "regarding", "round", "since",
+                "through", "to", "toward", "under", "underneath", "until", "unto", "up", "upon", "with", "within",
+                "without"]
+
+
+def inverted_index_of(datalake):
     dictionary = defaultdict(list)
 
-    for document in document_list:
+    for document in datalake:
         word_split(document, dictionary)
 
     return dictionary
 
 
-# 1. remove meta-data from book
-# 2. Create the indexer
-# 2.1 Read the book
-#
-#
-# Create dictionary
-
-
-# FOR EVERY LINE IN DOCUMENT:
-# remove all symbols expect A-Z, a-z, and spaces
-#
-#
-
-# FOR EVERY WORD IN LINE:
-# isItWord (word) -> bool
-# isPreposition (word) -> bool
-# isInDictionary (word) -> bool
-# insertWordToDict (docName, word, dict) -> dict
-
-
 def word_split(filename, dictionary):
     file = open(filename, 'r', encoding='utf-8')
     for line in file:
-        words = line.split()
+        words = nltk.tokenize.sent_tokenize(line, language='english')
         for word in words:
+            word = change_word(word)
             insert_word_to_dict(filename, word, dictionary)
 
 
-def check_word(word):
-    # TODO: check if correct word
-    # TODO: check if it is preposition
-    # TODO: check if it already in dictionary
+def check_word(word, dictionary):
+    if word in stop_words:
+        return False
+    elif word in dictionary:
+        return False
     return True
 
 
@@ -50,10 +56,10 @@ def change_word(word):
 
 
 def insert_word_to_dict(filename, word, dictionary):
-    if check_word(word):
+    if check_word(word, dictionary):
 
-        if not dictionary[change_word(word)].__contains__( filename ):
-            dictionary[change_word(word)].append( filename )
+        if not dictionary[word].__contains__(filename):
+            dictionary[word].append(filename)
 
     return dictionary
 
