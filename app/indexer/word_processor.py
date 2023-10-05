@@ -2,7 +2,8 @@ import nltk
 import ssl
 from nltk.corpus import stopwords
 
-import app.db.postgres_word as word_db
+from app.db import database
+from app.db.model import Book
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -30,17 +31,15 @@ def change_word(word):
     return word.lower()
 
 
-def insert_word_to_db(word, book_id):
+def insert_word_to_db(session, word, book):
 
     # Check if word is already in database
-    db_records = word_db.find_word_by_name(word)
-    if len(db_records) == 0:
-        word_id = word_db.insert_word(word)
-    else:
-        word_id = db_records[0][0]
+    word_entity = database.find_word(session, word)
+    if word_entity is None:
+        word_entity = database.add_word(session, word)
+        word_entity.books.append(book)
+        session.commit()
 
-    # Check if world is already assigned to the book
-    if len(word_db.find_book_word(word_id, book_id)) == 0:
-        word_db.add_book_to_word(word_id, book_id)
-
-
+    # Check if word is already assigned to the book
+    elif book not in word_entity.books:
+        word_entity.books.append(book)

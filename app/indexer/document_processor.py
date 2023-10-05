@@ -1,9 +1,12 @@
 import nltk
 import requests
+import psycopg2
 
-import app.db.postgres_book as book_db
+from sqlalchemy.orm import Session
+
 
 import app.indexer.word_processor as word_processor
+from app.db import database
 
 
 def locate_start_of_ebook(document):
@@ -13,10 +16,15 @@ def locate_start_of_ebook(document):
 
 
 def index_document(book_id):
-    content = download_book(book_id)
-    title = locate_title(content)
-    db_book_id = book_db.insert_book(title, make_url_from_id(book_id))
-    process_book(db_book_id, content)
+    with Session(database.engine) as session:
+        content = download_book(book_id)
+        try:
+            book = database.add_book(session, locate_title(content), make_url_from_id(book_id))
+        except Exception as ex:
+            print(ex)
+            return
+        content = content[locate_start_of_ebook(content):]
+        process_book(session, book, content)
 
 
 def make_url_from_id(doc_id):
@@ -34,8 +42,9 @@ def download_book(doc_id):
     return requests.get(make_url_from_id(doc_id)).content
 
 
-def process_book(book_id, document):
+def process_book(session, book, document):
     words = nltk.word_tokenize(str(document))
     for word in words:
-        if word.isalpha():
-            word_processor.insert_word_to_db(word_processor.change_word(word), book_id)
+        word = word_processor.change_word(word)
+        if word.isalpha() and word_processor.is_word_correct(word):
+            word_processor.insert_word_to_db(session, word, book)
