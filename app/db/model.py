@@ -1,8 +1,8 @@
 from typing import List
 
+from sqlalchemy import String, ForeignKey, Column, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, relationship
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String, ForeignKey, Column, Integer, Table
 
 
 class Base(DeclarativeBase):

@@ -1,9 +1,6 @@
 import nltk
 import requests
-import psycopg2
-
 from sqlalchemy.orm import Session
-
 
 import app.indexer.word_processor as word_processor
 from app.db import database

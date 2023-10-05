@@ -1,9 +1,9 @@
-import nltk
 import ssl
+
+import nltk
 from nltk.corpus import stopwords
 
 from app.db import database
-from app.db.model import Book
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -32,7 +32,6 @@ def change_word(word):
 
 
 def insert_word_to_db(session, word, book):
-
     # Check if word is already in database
     word_entity = database.find_word(session, word)
 
@@ -49,4 +48,3 @@ def insert_word_to_db(session, word, book):
         word_entity.books.append(book)
     else:
         database.increase_count(session, word_entity, book)
-
