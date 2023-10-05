@@ -10,7 +10,6 @@ if __name__ == "__main__":
     Base.metadata.create_all(database.engine)
 
     index_document(500)
-    index_document(499)
 
     while True:
         word = input("Word to search for: ")

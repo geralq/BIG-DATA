@@ -35,11 +35,18 @@ def insert_word_to_db(session, word, book):
 
     # Check if word is already in database
     word_entity = database.find_word(session, word)
+
+    # Word is not in the database
     if word_entity is None:
         word_entity = database.add_word(session, word)
         word_entity.books.append(book)
         session.commit()
+        return
 
+    # Word is in the database
     # Check if word is already assigned to the book
-    elif book not in word_entity.books:
+    if book not in word_entity.books:
         word_entity.books.append(book)
+    else:
+        database.increase_count(session, word_entity, book)
+

@@ -1,10 +1,10 @@
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, update
 
 import configparser
 
 from sqlalchemy import URL
 
-from app.db.model import Base, Book, Word
+from app.db.model import Base, Book, Word, BookWord
 
 config = configparser.ConfigParser()
 config.read("app/db/database.ini")
@@ -56,3 +56,22 @@ def find_books_from_word(session, word):
     if word is None:
         return None
     return word.books
+
+
+def find_book_word(session, word, book):
+    stmt = select(BookWord.count).where(BookWord.book_id == book.id, BookWord.word_id == word.id)
+    return session.scalars(stmt).first()
+
+
+def increase_count(session, word, book):
+
+    record = find_book_word(session, word, book)
+    stmt = (
+        update(BookWord).
+        where(BookWord.book_id == book.id, BookWord.word_id == word.id).
+        values(count=record+1)
+    )
+    session.execute(stmt)
+    session.commit()
+
+
