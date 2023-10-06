@@ -1,14 +1,11 @@
-from db.create_table import create_tables
-from db.drop_table import drop_tables
-
-import indexer.document_processor as document_processor
+import app.indexer.document_processor as dp
+from app.db.in_memory_dictionary import InMemoryDictionary
 
 if __name__ == "__main__":
-    try:
-        drop_tables()
-    except Exception as error:
-        print(error)
+    dictionary = InMemoryDictionary()
+    dp = dp.DocumentProcessor(dictionary)
 
-    create_tables()
+    dp.index_document(400)
 
-    document_processor.index_document(500)
+    dictionary.save_dictionary()
+    dictionary.print_dictionary()

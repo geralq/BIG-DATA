@@ -1,8 +1,10 @@
-import nltk
 import ssl
+
+import nltk
 from nltk.corpus import stopwords
 
-import app.db.postgres_word as word_db
+from app.db.in_memory_dictionary import InMemoryDictionary
+from app.indexer.model import Book
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -22,25 +24,26 @@ prepositions = ["about", "above", "across", "after", "against", "along", "amid",
                 "without"]
 
 
-def is_word_correct(word):
-    return not (word in stop_words or word in prepositions)
+class WordProcessor:
 
+    def __init__(self, in_memory_dictionary: InMemoryDictionary):
+        self.dictionary = in_memory_dictionary
 
-def change_word(word):
-    return word.lower()
+    @staticmethod
+    def is_word_correct(word):
+        return not (word in stop_words or word in prepositions)
 
+    @staticmethod
+    def change_word(word):
+        return word.lower()
 
-def insert_word_to_db(word, book_id):
+    def insert_word_to_db(self, word: str, book: Book):
 
-    # Check if word is already in database
-    db_records = word_db.find_word_by_name(word)
-    if len(db_records) == 0:
-        word_id = word_db.insert_word(word)
-    else:
-        word_id = db_records[0][0]
+        word = self.change_word(word)
 
-    # Check if world is already assigned to the book
-    if len(word_db.find_book_word(word_id, book_id)) == 0:
-        word_db.add_book_to_word(word_id, book_id)
+        if not word.isalpha() or word in prepositions or word in stop_words:
+            return
 
-
+        if not self.dictionary.is_word_in_dictionary(word):
+            self.dictionary.add_word(word)
+        self.dictionary.assign_book_to_word(word, book)
