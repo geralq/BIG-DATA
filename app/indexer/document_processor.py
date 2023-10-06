@@ -35,7 +35,6 @@ class DocumentProcessor:
 
     def process_book(self, book, document):
         words = nltk.word_tokenize(str(document))
-        print(words)
         for word in words:
             self.word_processor.insert_word_to_db(word, book)
 
