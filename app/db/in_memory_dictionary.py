@@ -6,7 +6,7 @@ from app.indexer.model import Book, DictionaryEntry
 
 
 class InMemoryDictionary:
-    inverted_index = {}
+    inverted_index: dict = {}
     file_path = "data/inverted_index.json"
 
     def assign_book_to_word(self, word, book: Book):
@@ -27,8 +27,8 @@ class InMemoryDictionary:
     def add_word(self, word):
         self.inverted_index[word] = []
 
-    def find_word(self, word):
-        return self.inverted_index[word]
+    def find_word(self, word: str):
+        return self.inverted_index.get(word.lower())
 
     def is_word_in_dictionary(self, word):
         return word in self.inverted_index
@@ -43,5 +43,4 @@ class InMemoryDictionary:
 
     def save_dictionary(self):
         with open(self.file_path, "w") as file:
-            file.write(jsonpickle.encode(self.inverted_index)
-)
+            file.write(jsonpickle.encode(self.inverted_index))
