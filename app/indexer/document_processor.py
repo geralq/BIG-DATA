@@ -35,21 +35,16 @@ class DocumentProcessor:
 
     def process_book(self, book, document):
         words = nltk.word_tokenize(str(document))
+        print(words)
         for word in words:
-            word = self.word_processor.change_word(word)
-            if word.isalpha() and self.word_processor.is_word_correct(word):
-                self.word_processor.insert_word_to_db(word, book)
+            self.word_processor.insert_word_to_db(word, book)
 
     def index_document(self, book_id):
         url = self.make_url_from_book_id(book_id)
         content = self.download_book(url)
         title = self.locate_title(content)
 
-        try:
-            book = self.book_repository.add_book(title, url)
-        except Exception as ex:
-            print(ex)
-            return
+        book = self.book_repository.add_book(title, url)
 
         ebook = content[self.locate_start_of_ebook(content):]
         self.process_book(book, ebook)

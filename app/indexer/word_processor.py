@@ -32,13 +32,17 @@ class WordProcessor:
 
     @staticmethod
     def is_word_correct(word):
-        return not (word in stop_words or word in prepositions)
+        return not (word in stop_words or word in prepositions or not word.isalpha())
 
     @staticmethod
     def change_word(word):
         return word.lower()
 
     def insert_word_to_db(self, word: str, book: Book):
+
+        word = self.change_word(word)
+        if not self.is_word_correct(word):
+            return
 
         # Check if word is already in database
         word_entity = self.word_repository.find_word(word)

@@ -18,7 +18,8 @@ if __name__ == "__main__":
     Base.metadata.drop_all(database.engine)
     Base.metadata.create_all(database.engine)
 
-    DocumentProcessor(book_repository, word_repository, bookwords_repository).index_document(500)
+    document_processor = DocumentProcessor(book_repository, word_repository, bookwords_repository)
+    document_processor.index_document(500)
 
     while True:
         word = input("Word to search for: ")
