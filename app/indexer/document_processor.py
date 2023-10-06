@@ -2,15 +2,18 @@ import nltk
 import requests
 
 import app.indexer.word_processor as word_processor
+from app.repository.book_repository import BookRepository
+from app.repository.bookwords_repository import BookWordsRepository
+from app.repository.word_repository import WordRepository
 
 
 class DocumentProcessor:
 
     def __init__(self, book_repository, word_repository, bookwords_repository):
-        self.book_repository = book_repository
-        self.word_repository = word_repository
-        self.bookwords_repository = bookwords_repository
-        self.word_processor = word_processor.WordProcessor(book_repository, word_repository, bookwords_repository)
+        self.book_repository: BookRepository = book_repository
+        self.word_repository: WordRepository = word_repository
+        self.bookwords_repository: BookWordsRepository = bookwords_repository
+        self.word_processor: word_processor.WordProcessor = word_processor.WordProcessor(book_repository, word_repository, bookwords_repository)
 
     @staticmethod
     def locate_start_of_ebook(document):
@@ -42,6 +45,10 @@ class DocumentProcessor:
         url = self.make_url_from_book_id(book_id)
         content = self.download_book(url)
         title = self.locate_title(content)
+
+        if self.book_repository.find_book_by_title(title) is not None:
+            print("Book with id=", book_id, " is already indexed.", sep='')
+            return
 
         book = self.book_repository.add_book(title, url)
 

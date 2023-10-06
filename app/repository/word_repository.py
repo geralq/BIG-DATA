@@ -25,7 +25,7 @@ class WordRepository:
         return word
 
     def add_book_to_word(self, word, book):
-        word_db = self.session.get(word)
+        word_db = self.session.get(Word, word.id)
         word_db.books.append(book)
         self.session.commit()
         return word_db

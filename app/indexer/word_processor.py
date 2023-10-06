@@ -55,6 +55,6 @@ class WordProcessor:
         # Word is in the database
         # Check if word is already assigned to the book
         if book not in word_entity.books:
-            self.word_repository.add_book(book)
+            self.word_repository.add_book_to_word(word_entity, book)
         else:
             self.bookwords_repository.increase_word_count(word_entity, book)

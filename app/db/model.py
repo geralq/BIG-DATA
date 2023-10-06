@@ -22,9 +22,17 @@ class Book(Base):
     book_title: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     book_url: Mapped[str] = mapped_column(unique=True, nullable=False)
 
+    def __str__(self) -> str:
+        return str(self.book_title)
+
+    def __repr__(self) -> str:
+        return str(self.book_title)
+
 
 class Word(Base):
     __tablename__ = "words"
     id: Mapped[int] = mapped_column(primary_key=True)
     word: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     books: Mapped[List["Book"]] = relationship(secondary="book_words")
+
+

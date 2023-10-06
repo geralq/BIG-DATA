@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from app.db.model import Book, Word
+from app.db.model import Book, Word, BookWord
 
 
 class BookRepository:
@@ -17,12 +17,20 @@ class BookRepository:
         stmt = select(Book).where(Book.id == id)
         return self.session.scalars(stmt).first()
 
-    def find_books_from_word(self, word):
+    def find_books_from_word(self, word: str):
         stmt = select(Word).where(Word.word == word)
         word = self.session.scalars(stmt).first()
         if word is None:
             return None
-        return word.books
+
+        result: (Book, int) = []
+
+        for book in word.books:
+            stmt = (select(BookWord.count)
+                    .where(BookWord.book_id == book.id, BookWord.word_id == word.id))
+            result.append((book, self.session.scalars(stmt).first()))
+
+        return result
 
     def find_book_by_title(self, title):
         stmt = select(Book).where(Book.book_title == title)

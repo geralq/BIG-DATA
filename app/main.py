@@ -15,12 +15,12 @@ bookwords_repository = BookWordsRepository(session)
 
 if __name__ == "__main__":
 
-    Base.metadata.drop_all(database.engine)
     Base.metadata.create_all(database.engine)
-
     document_processor = DocumentProcessor(book_repository, word_repository, bookwords_repository)
+
     document_processor.index_document(500)
+    document_processor.index_document(400)
 
     while True:
-        word = input("Word to search for: ")
-        print(book_repository.find_books_from_word(word))
+        word = input("Search for word: ")
+        print(book_repository.find_books_from_word(word.lower()))
