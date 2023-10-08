@@ -6,3 +6,5 @@ Each branch of this repository represent different implementation of the first t
 There is implementation using Python's dictionary data structure in branch **dictionary**
 
 Implementation using SQLAlchemy library and PostgreSQL database can be found in branch **sqlalchemy**
+
+Implementation using SQLite3 library can be found in branch **sqlite3**
