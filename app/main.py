@@ -7,6 +7,8 @@ from app.repository.book_repository import BookRepository
 from app.repository.bookwords_repository import BookWordsRepository
 from app.repository.word_repository import WordRepository
 
+from app.file_manager.file_manager import FileManager
+
 session = Session(database.engine)
 
 book_repository = BookRepository(session)
@@ -14,12 +16,14 @@ word_repository = WordRepository(session)
 bookwords_repository = BookWordsRepository(session)
 
 if __name__ == "__main__":
-
+    Base.metadata.drop_all(database.engine)
     Base.metadata.create_all(database.engine)
-    document_processor = DocumentProcessor(book_repository, word_repository, bookwords_repository)
 
-    document_processor.index_document(500)
-    document_processor.index_document(400)
+    file_manager = FileManager("data/")
+    file_manager.download_book(500)
+
+    document_processor = DocumentProcessor(book_repository, word_repository, bookwords_repository)
+    document_processor.index_documents(file_manager.content_dir)
 
     while True:
         word = input("Search for word: ")

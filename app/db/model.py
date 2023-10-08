@@ -20,7 +20,6 @@ class Book(Base):
     __tablename__ = "books"
     id: Mapped[int] = mapped_column(primary_key=True)
     book_title: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
-    book_url: Mapped[str] = mapped_column(unique=True, nullable=False)
 
     def __str__(self) -> str:
         return str(self.book_title)

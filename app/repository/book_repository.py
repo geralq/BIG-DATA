@@ -7,8 +7,8 @@ class BookRepository:
     def __init__(self, session):
         self.session = session
 
-    def add_book(self, title, url):
-        book = Book(book_title=title, book_url=url)
+    def add_book(self, title):
+        book = Book(book_title=title)
         self.session.add(book)
         self.session.commit()
         return book

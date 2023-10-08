@@ -1,3 +1,5 @@
+import os
+
 import nltk
 import requests
 
@@ -15,42 +17,22 @@ class DocumentProcessor:
         self.bookwords_repository: BookWordsRepository = bookwords_repository
         self.word_processor: word_processor.WordProcessor = word_processor.WordProcessor(book_repository, word_repository, bookwords_repository)
 
-    @staticmethod
-    def locate_start_of_ebook(document):
-        line = "*** START OF THE PROJECT GUTENBERG"
-        line_index = str(document).find(line) + len(line)
-        return str(document).find("***", line_index) + len("***")
-
-    @staticmethod
-    def make_url_from_book_id(book_id):
-        return "https://www.gutenberg.org/cache/epub/" + str(book_id) + "/pg" + str(book_id) + ".txt"
-
-    @staticmethod
-    def locate_title(document):
-        title = "Title: "
-        start_index = str(document).find(title) + len(title)
-        end_index = str(document).find('\\', start_index)
-        return str(document)[start_index:end_index]
-
-    @staticmethod
-    def download_book(url):
-        return requests.get(url).content
-
     def process_book(self, book, document):
         words = nltk.word_tokenize(str(document))
         for word in words:
             self.word_processor.insert_word_to_db(word, book)
 
-    def index_document(self, book_id):
-        url = self.make_url_from_book_id(book_id)
-        content = self.download_book(url)
-        title = self.locate_title(content)
+    def index_documents(self, content_dir: dir):
+        for file in os.listdir(content_dir):
 
-        if self.book_repository.find_book_by_title(title) is not None:
-            print("Book with id=", book_id, " is already indexed.", sep='')
-            return
+            filename = os.path.join(content_dir, file)
+            f = open(filename, "r")
+            content = f.read()
 
-        book = self.book_repository.add_book(title, url)
+            title, file_extension = os.path.splitext(file)
+            if self.book_repository.find_book_by_title(title) is not None:
+                print("Book with title=", title, " is already indexed.", sep='')
+                return
+            book = self.book_repository.add_book(title)
 
-        ebook = content[self.locate_start_of_ebook(content):]
-        self.process_book(book, ebook)
+            self.process_book(book, content)
