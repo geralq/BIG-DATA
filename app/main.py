@@ -1,3 +1,5 @@
+import time
+
 from sqlalchemy.orm import Session
 
 from app.db import database
@@ -20,10 +22,15 @@ if __name__ == "__main__":
     Base.metadata.create_all(database.engine)
 
     file_manager = FileManager("data/")
-    file_manager.download_book(500)
 
+    start = time.time()
+
+    file_manager.download_book(500)
     document_processor = DocumentProcessor(book_repository, word_repository, bookwords_repository)
     document_processor.index_documents(file_manager.content_dir)
+
+    end = time.time()
+    print(end - start)
 
     while True:
         word = input("Search for word: ")
